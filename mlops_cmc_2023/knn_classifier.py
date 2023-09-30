@@ -22,7 +22,7 @@ class KNNClassifier:
         else:
             self.X_train = X
             self.y_train = y
-                                          
+
 
     def create_block(self, X, count, tbs):
         start = tbs * count
@@ -77,4 +77,3 @@ class KNNClassifier:
             count += 1
             X_block = self.create_block(X, count, self.tbs)
         return answ
-
