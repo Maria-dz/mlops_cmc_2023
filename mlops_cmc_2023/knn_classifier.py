@@ -1,6 +1,6 @@
-import euclidean_distance, cosine_distance from distances.py
 import numpy as np
-import pandas as pd
+import sklearn.neighbors
+
 
 class KNNClassifier:
     def __init__(self, k, strategy, metric, weights, test_block_size):
@@ -15,14 +15,14 @@ class KNNClassifier:
 
     def fit(self, X, y):
         if self.strategy != "my_own":
-            self.model = sklearn.neighbors.NearestNeighbors(n_neighbors=self.k, algorithm=self.strategy,
-                                                            metric=self.metric)
+            self.model = sklearn.neighbors.NearestNeighbors(
+                n_neighbors=self.k, algorithm=self.strategy, metric=self.metric
+            )
             self.model.fit(X)
             self.y_train = y
         else:
             self.X_train = X
             self.y_train = y
-
 
     def create_block(self, X, count, tbs):
         start = tbs * count
@@ -33,14 +33,13 @@ class KNNClassifier:
 
     def find_kneighbors(self, X, return_distance):
         if self.strategy != "my_own":
-            return self.model.kneighbors(X, n_neighbors=self.k, return_distance=return_distance)
+            return self.model.kneighbors(
+                X, n_neighbors=self.k, return_distance=return_distance
+            )
 
         else:
-            if self.metric == "euclidean":
-                distances = euclidean_distance(X, self.X_train)
-            else:
-                distances = cosine_distance(X, self.X_train)
-            indx = np.argsort(distances)[:, :self.k]
+            distances = np.linalg.norm(X - self.X_train)
+            indx = np.argsort(distances)[:, : self.k]
             dist = np.zeros((np.shape(distances)[0], self.k))
             for i in range(np.shape(distances)[0]):
                 dist[i] = distances[i][indx[i]]
@@ -52,7 +51,7 @@ class KNNClassifier:
 
     def predict(self, X):
         def f(x):
-            return 1/(x+0.00001)
+            return 1 / (x + 0.00001)
 
         count = 0
         answ = np.zeros(np.shape(X)[0])
