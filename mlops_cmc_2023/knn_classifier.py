@@ -3,26 +3,27 @@ import sklearn.neighbors
 
 
 class KNNClassifier:
-    def __init__(self, k, strategy, metric, weights, test_block_size):
+    def __init__(self, k, strategy, metric, weights=None, tbs=None):
         self.k = k
         self.strategy = strategy
         self.metric = metric
         self.weights = weights
-        self.tbs = test_block_size
+        self.tbs = tbs
         self.X_train = None
         self.y_train = None
         self.model = None
 
     def fit(self, X, y):
         if self.strategy != "my_own":
-            self.model = sklearn.neighbors.NearestNeighbors(
+            self.model = sklearn.neighbors.KNeighborsClassifier(
                 n_neighbors=self.k, algorithm=self.strategy, metric=self.metric
             )
-            self.model.fit(X)
+            self.model.fit(X, y)
             self.y_train = y
         else:
             self.X_train = X
             self.y_train = y
+        return self.model
 
     def create_block(self, X, count, tbs):
         start = tbs * count
