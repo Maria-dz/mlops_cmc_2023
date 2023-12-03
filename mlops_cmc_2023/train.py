@@ -114,6 +114,7 @@ def main(cfg):
         .strip()
         .decode("utf-8")
     )
+    mlflow.log_params(cfg["training"])
     mlflow.log_param("git_commit_id", commit_id)
     mlflow.end_run()
 
