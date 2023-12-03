@@ -12,6 +12,7 @@ from torch import optim
 
 @hydra.main(config_path="../configs", config_name="config", version_base="1.3")
 def main(cfg):
+    print(cfg)
     smth = dvc.api.read(cfg["train_data"]["path"])
     train_string = io.StringIO(smth)
     df = pd.read_csv(train_string, sep=",", dtype=np.float32)
@@ -21,7 +22,7 @@ def main(cfg):
 
     features_train = torch.from_numpy(X)
     target_train = torch.from_numpy(y).type(torch.LongTensor)
-    batch_size = 256
+    batch_size = cfg["training"]["batch_size"]
     train = torch.utils.data.TensorDataset(features_train, target_train)
     train_loader = torch.utils.data.DataLoader(
         train, batch_size=batch_size, shuffle=True
@@ -30,10 +31,10 @@ def main(cfg):
 
     model = knn_tools.Classifier()
     criterion = nn.NLLLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.0015)
-    epochs = 15
+    optimizer = optim.Adam(model.parameters(), lr=cfg["training"]["lr"])
+    epochs = cfg["training"]["num_epochs"]
     steps = 0
-    print_every = 200
+    print_every = cfg["training"]["print_every"]
     for e in range(epochs):
         running_loss = 0
         for images, labels in train_loader:

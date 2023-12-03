@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 
 @hydra.main(config_path="../configs", config_name="config", version_base="1.3")
 def main(cfg):
-    batch_size = 256
+    batch_size = cfg["training"]["batch_size"]
     smth = dvc.api.read(cfg["test_data"]["path"])
     train_string = io.StringIO(smth)
     df = pd.read_csv(train_string, sep=",", dtype=np.float32)
