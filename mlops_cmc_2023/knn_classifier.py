@@ -3,7 +3,7 @@ import sklearn.neighbors
 
 
 class KNNClassifier:
-    def __init__(self, k, strategy, metric, weights=None, tbs=None):
+    def __init__(self, k, metric, strategy="auto", weights=None, tbs=None):
         self.k = k
         self.strategy = strategy
         self.metric = metric

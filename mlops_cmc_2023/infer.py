@@ -2,11 +2,14 @@ import io
 import pickle
 
 import dvc.api
+import hydra
 import pandas as pd
 from sklearn.metrics import accuracy_score
 
-if __name__ == "__main__":
-    smth = dvc.api.read("../data/train_data.csv")
+
+@hydra.main(config_path="../configs", config_name="config", version_base="1.3")
+def main(cfg):
+    smth = dvc.api.read(cfg["test_data"]["path"])
     train_string = io.StringIO(smth)
     df = pd.read_csv(train_string, sep=",")
     y = df["target"]
@@ -20,3 +23,7 @@ if __name__ == "__main__":
 
     print("accuracy: ", accuracy_score(y, y_pred))
     print("Results are saved to 'predicted_labels.csv'")
+
+
+if __name__ == "__main__":
+    main()
