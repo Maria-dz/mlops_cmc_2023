@@ -1,0 +1,13 @@
+train_data:
+  name: mnist train
+  path: ../data/test_data.csv
+test_data:
+  name: mnist test
+  path: ../data/train_data.csv
+training:
+  batch_size: 256
+  num_epochs: 15
+  lr: 0.0015
+  print_every: 200
+mlflow_config:
+  MLFLOW_Tracking_Uri: http://127.0.0.1:5001

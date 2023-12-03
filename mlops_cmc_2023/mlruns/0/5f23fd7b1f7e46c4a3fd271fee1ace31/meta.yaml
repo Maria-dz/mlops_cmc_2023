@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/0/5f23fd7b1f7e46c4a3fd271fee1ace31/artifacts
+end_time: 1701630111560
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 5f23fd7b1f7e46c4a3fd271fee1ace31
+run_name: shivering-shrew-176
+run_uuid: 5f23fd7b1f7e46c4a3fd271fee1ace31
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1701630067418
+status: 3
+tags: []
+user_id: dzyubamary

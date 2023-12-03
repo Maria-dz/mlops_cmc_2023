@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/dzyubamary/mlops_cmc_2023/mlops_cmc_2023/mlruns/c9b59d0b119441dd8ba79d3574b9aa83/artifacts
+end_time: 1701633298918
+entry_point_name: ''
+experiment_id: '710633809298376459'
+lifecycle_stage: active
+run_id: c9b59d0b119441dd8ba79d3574b9aa83
+run_name: MNIST12-03 22:54:14
+run_uuid: c9b59d0b119441dd8ba79d3574b9aa83
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1701633255116
+status: 3
+tags: []
+user_id: dzyubamary

@@ -6,6 +6,7 @@ from pathlib import Path
 import dvc.api
 import hydra
 import knn_classifier as knn_tools
+import matplotlib.pyplot as plt
 import mlflow
 import mlflow.onnx
 import numpy as np
@@ -13,6 +14,7 @@ import pandas as pd
 import torch
 import torch.nn as nn
 from torch import optim
+from torch.utils.data import DataLoader
 
 
 @hydra.main(config_path="../configs", config_name="config", version_base="1.3")
@@ -43,8 +45,18 @@ def main(cfg):
     train_loader = torch.utils.data.DataLoader(
         train, batch_size=batch_size, shuffle=True
     )
-    train_losses = []
+    smth = dvc.api.read(cfg["test_data"]["path"])
+    train_string = io.StringIO(smth)
+    df = pd.read_csv(train_string, sep=",", dtype=np.float32)
+    y = np.array(df["target"])
+    X = np.array(df.drop("target", axis=1))
+    features_test = torch.from_numpy(X)
+    target_test = torch.from_numpy(y).type(torch.LongTensor)
+    test = torch.utils.data.TensorDataset(features_test, target_test)
+    test_loader = DataLoader(test, batch_size=batch_size, shuffle=True)
 
+    train_losses = []
+    test_losses = []
     model = knn_tools.Classifier()
     criterion = nn.NLLLoss()
     optimizer = optim.Adam(model.parameters(), lr=cfg["training"]["lr"])
@@ -63,28 +75,37 @@ def main(cfg):
 
             running_loss += loss.item()
             if steps % print_every == 0:
-                """test_loss = 0
+                test_loss = 0
                 accuracy = 0
                 with torch.no_grad():
-                model.eval()
-                for images, labels in test_loader:
-                    log_ps = model(images)
-                    test_loss += criterion(log_ps, labels)
-
-                    ps = torch.exp(log_ps)
-                    top_p, top_class = ps.topk(1, dim=1)
-                    equals = top_class == labels.view(*top_class.shape)
-                    accuracy += torch.mean(equals.type(torch.FloatTensor))"""
+                    model.eval()
+                    for images, labels in test_loader:
+                        log_ps = model(images)
+                        test_loss += criterion(log_ps, labels)
+                        ps = torch.exp(log_ps)
+                        top_p, top_class = ps.topk(1, dim=1)
+                        equals = top_class == labels.view(*top_class.shape)
+                        accuracy += torch.mean(equals.type(torch.FloatTensor))
                 model.train()
                 train_losses.append(running_loss / len(train_loader))
-                # test_losses.append(test_loss/len(test_loader))
+                test_losses.append(test_loss / len(test_loader))
                 print(
                     "Epoch: {}/{}.. ".format(e + 1, epochs),
-                    "Training Loss: {:.3f}.. ".format(train_losses[-1]),
+                    "Training Loss: {} ".format(train_losses[-1]),
+                    "Test Loss: {} ".format(test_losses[-1]),
+                    "Test Accuracy: {}".format(accuracy / len(test_loader)),
                 )
-                # "Test Loss: {:.3f}.. ".format(test_losses[-1]),
-                # "Test Accuracy: {:.3f}".format(accuracy/len(test_loader)))
+    plt.figure(figsize=(9, 9))
+    plt.plot(train_losses, label="Training loss")
+    plt.savefig("Training_loss.png")
+    plt.figure(figsize=(9, 9))
+    mlflow.log_artifact("Training_loss.png")
+    plt.plot(test_losses, label="Test loss")
+    plt.savefig("Test_loss.png")
+    mlflow.log_artifact("Test_loss.png")
+
     mlflow.log_metric("train_loss", np.mean(train_losses))
+    mlflow.log_metric("test_loss", np.mean(test_losses))
 
     torch.save(model, "model_trained.pkl")
 

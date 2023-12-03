@@ -1,0 +1,6 @@
+data:
+  name: mnist
+  path: /data/test_data.csv
+training:
+  k: 500
+  metric: cosine
