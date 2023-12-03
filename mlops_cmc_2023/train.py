@@ -17,7 +17,7 @@ from torch import optim
 
 @hydra.main(config_path="../configs", config_name="config", version_base="1.3")
 def main(cfg):
-    mlflow.set_tracking_uri("http://127.0.0.1:5001")
+    mlflow.set_tracking_uri(cfg["mlflow_config"]["MLFLOW_Tracking_Uri"])
     experiment_id = mlflow.create_experiment(
         "MNIST_" + datetime.now().strftime("%m-%d %H:%M:%S"),
         artifact_location=Path.cwd().joinpath("mlruns").as_uri(),
