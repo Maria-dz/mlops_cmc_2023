@@ -1,8 +1,13 @@
 import io
+import subprocess
+from datetime import datetime
+from pathlib import Path
 
 import dvc.api
 import hydra
 import knn_classifier as knn_tools
+import mlflow
+import mlflow.onnx
 import numpy as np
 import pandas as pd
 import torch
@@ -12,10 +17,21 @@ from torch import optim
 
 @hydra.main(config_path="../configs", config_name="config", version_base="1.3")
 def main(cfg):
-    print(cfg)
-    smth = dvc.api.read(cfg["train_data"]["path"])
-    train_string = io.StringIO(smth)
+    mlflow.set_tracking_uri("http://127.0.0.1:5001")
+    experiment_id = mlflow.create_experiment(
+        "MNIST_" + datetime.now().strftime("%m-%d %H:%M:%S"),
+        artifact_location=Path.cwd().joinpath("mlruns").as_uri(),
+        tags={"version": "v3", "priority": "P1"},
+    )
+
+    data = dvc.api.read(cfg["train_data"]["path"])
+    train_string = io.StringIO(data)
     df = pd.read_csv(train_string, sep=",", dtype=np.float32)
+
+    mlflow.start_run(
+        experiment_id=experiment_id,
+        run_name="MNIST" + f'{datetime.now().strftime("%m-%d %H:%M:%S")}',
+    )
 
     y = np.array(df["target"])
     X = np.array(df.drop("target", axis=1))
@@ -68,14 +84,17 @@ def main(cfg):
                 )
                 # "Test Loss: {:.3f}.. ".format(test_losses[-1]),
                 # "Test Accuracy: {:.3f}".format(accuracy/len(test_loader)))
+    mlflow.log_metric("train_loss", np.mean(train_losses))
 
-    # model = knn_tools.KNNClassifier(
-    #    k=cfg["training"]["k"], metric=cfg["training"]["metric"]
-    # )
-    # model = model.fit(X, y)
-    # with open("model_trained.pkl", "wb") as f:
-    #    pickle.dump(model, f)
     torch.save(model, "model_trained.pkl")
+
+    commit_id = (
+        subprocess.check_output(["git", "rev-parse", "--short", "HEAD"])
+        .strip()
+        .decode("utf-8")
+    )
+    mlflow.log_param("git_commit_id", commit_id)
+    mlflow.end_run()
 
 
 if __name__ == "__main__":

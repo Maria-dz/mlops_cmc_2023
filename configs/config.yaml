@@ -9,3 +9,6 @@ training:
   num_epochs: 15
   lr: 0.0015
   print_every: 200
+mlflow_config:
+  MLFLOW_Tracking_Uri: http://localhost:5000
+  MLFLOW_S3_Endpoint_Url: http://localhost:9000
