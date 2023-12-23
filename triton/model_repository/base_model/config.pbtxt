@@ -1,16 +1,17 @@
+name: "base_model"
 backend: "pytorch"
-max_batch_size: 32
+max_batch_size: 800
 input [
     {
         name: "input__0"
-        data_type: TYPE_FP32
-        dims: [ 3, 24, 94 ]
+        data_type: TYPE_FP64
+        dims: [785]
     }
 ]
 output [
     {
         name: "output__0"
-        data_type: TYPE_FP32
-        dims: [ 3, 24, 94 ]
+        data_type: TYPE_FP64
+        dims: [10]
     }
 ]
